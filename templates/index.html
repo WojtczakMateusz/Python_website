@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎨 Fashion-MNIST Classifier</title>
+
+<!-- FontAwesome dla ikon -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+<style>
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Gradient animowany dla tła */
+body {
+  font-family: 'Poppins', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  background: linear-gradient(-45deg, #667eea, #764ba2, #89f7fe, #66a6ff);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+}
+
+@keyframes gradientBG {
+  0% {background-position: 0% 50%;}
+  50% {background-position: 100% 50%;}
+  100% {background-position: 0% 50%;}
+}
+
+/* Container */
+.container {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 40px;
+  border-radius: 25px;
+  max-width: 950px;
+  width: 100%;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+  backdrop-filter: blur(10px);
+}
+
+/* Header */
+h1 {
+  text-align: center;
+  color: #764ba2;
+  margin-bottom: 15px;
+  font-size: 2.5em;
+}
+
+p.description {
+  text-align: center;
+  color: #555;
+  margin-bottom: 30px;
+  font-size: 1.1em;
+}
+
+/* Upload Form */
+.upload-form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+}
+
+input[type="file"] {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+input[type="file"]:hover {
+  border-color: #764ba2;
+  box-shadow: 0 0 12px rgba(118,75,162,0.3);
+}
+
+button {
+  background: #764ba2;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  font-size: 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background: #667eea;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+
+/* Podgląd obrazu */
+#preview {
+  display: block;
+  margin: 0 auto 20px;
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 15px;
+  border: 2px solid #764ba2;
+  box-shadow: 3px 3px 15px rgba(0,0,0,0.2);
+}
+
+/* Results */
+.results {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.result-item {
+  background: #f3f3f3;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 5px 5px 20px rgba(0,0,0,0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.result-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 10px 10px 30px rgba(0,0,0,0.15);
+}
+
+.result-item h3 {
+  color: #764ba2;
+  margin-bottom: 10px;
+  font-size: 1.3em;
+}
+
+.result-item p {
+  font-size: 1.1em;
+}
+
+.category-list {
+  margin-top: 10px;
+  list-style: none;
+}
+
+.category-list li {
+  margin: 5px 0;
+}
+
+/* Instructions */
+.instructions {
+  margin-top: 40px;
+  padding: 20px;
+  background: #f0f0f0;
+  border-radius: 20px;
+  font-size: 1em;
+}
+
+.instructions h3 {
+  color: #764ba2;
+  margin-bottom: 10px;
+}
+
+/* Responsywność */
+@media(max-width: 700px){
+  .results {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+    <h1><i class="fas fa-tshirt"></i> Fashion-MNIST Classifier</h1>
+    <p class="description">Prześlij obraz 28x28 pikseli, aby zobaczyć klasyfikację przez dwa modele CNN</p>
+
+    <!-- Podgląd obrazu -->
+    <img id="preview" src="#" alt="Podgląd obrazu" style="display:none;">
+
+    <!-- Upload form -->
+    <form class="upload-form" method="POST" enctype="multipart/form-data">
+        <input type="file" name="image" accept="image/*" onchange="previewImage(event)" required>
+        <button type="submit"><i class="fas fa-search"></i> Analizuj obraz</button>
+    </form>
+
+    <!-- Wyniki -->
+    {% if simple is not none or advanced is not none %}
+    <div class="results">
+        {% if simple is not none %}
+        <div class="result-item">
+            <h3><i class="fas fa-magic"></i> Prosty model (CNN)</h3>
+            <p><strong>Klasa:</strong> {{ simple }}</p>
+            <p><strong>Kategoria:</strong>
+            {% if simple == 0 %} T-shirt/top
+            {% elif simple == 1 %} Spodnie
+            {% elif simple == 2 %} Sweter
+            {% elif simple == 3 %} Sukienka
+            {% elif simple == 4 %} Płaszcz
+            {% elif simple == 5 %} Sandał
+            {% elif simple == 6 %} Koszula
+            {% elif simple == 7 %} Tenisówka
+            {% elif simple == 8 %} Torba
+            {% elif simple == 9 %} But za kostkę
+            {% endif %}
+            </p>
+        </div>
+        {% endif %}
+
+        {% if advanced is not none %}
+        <div class="result-item">
+            <h3><i class="fas fa-brain"></i> Zaawansowany model (CNN)</h3>
+            <p><strong>Klasa:</strong> {{ advanced }}</p>
+            <p><strong>Kategoria:</strong>
+            {% if advanced == 0 %} T-shirt/top
+            {% elif advanced == 1 %} Spodnie
+            {% elif advanced == 2 %} Sweter
+            {% elif advanced == 3 %} Sukienka
+            {% elif advanced == 4 %} Płaszcz
+            {% elif advanced == 5 %} Sandał
+            {% elif advanced == 6 %} Koszula
+            {% elif advanced == 7 %} Tenisówka
+            {% elif advanced == 8 %} Torba
+            {% elif advanced == 9 %} But za kostkę
+            {% endif %}
+            </p>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Instructions -->
+    <div class="instructions">
+        <h3>ℹ️ Instrukcja</h3>
+        <p>1. Wybierz obraz (najlepiej 28x28 pikseli)</p>
+        <p>2. Kliknij "Analizuj obraz"</p>
+        <p>3. Sprawdź wyniki klasyfikacji przez oba modele</p>
+    </div>
+</div>
+
+<script>
+// Podgląd obrazu przed wysłaniem
+function previewImage(event) {
+    const preview = document.getElementById('preview');
+    const file = event.target.files[0];
+    if(file) {
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = "block";
+    }
+}
+</script>
+</body>
+</html>
