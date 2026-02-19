@@ -37,7 +37,7 @@ Navigate to the project folder:
 cd YOUR_REPOSITORY
 
 Run the application: 
-python3 main.py
+python3 zaliczenie.py
 
 
 
