@@ -24,3 +24,21 @@ The Adam optimizer and the sparse_categorical_crossentropy loss function were us
 
 The advanced model achieved higher accuracy at the cost of longer training time.
 Data augmentation improved the network’s robustness to image distortions.
+
+#How to run:
+
+Check your Python version: 
+python --version 
+
+Clone the repository 
+git clone https://github.com/WojtczakMateusz/Python_website.git
+
+Navigate to the project folder: 
+cd YOUR_REPOSITORY
+
+Run the application: 
+python3 main.py
+
+
+
+
